@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strates</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; background: #1A1F2B; color: #EDE7DA; }
+  nav {
+    background: rgba(26,31,43,0.95);
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .brand { font-size: 1.4rem; font-weight: bold; }
+  .nav-links { display: flex; gap: 20px; }
+  .nav-links a { color: #9C988A; text-decoration: none; font-size: 0.9rem; }
+  .btn { padding: 10px 20px; border-radius: 999px; border: none; cursor: pointer; font-size: 0.85rem; }
+  .btn-primary { background: #EFE8D8; color: #1A1F2B; }
+  .btn-ghost { background: none; border: 1px solid rgba(255,255,255,0.2); color: #EDE7DA; }
+  .hero { padding: 80px 40px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .hero h1 { font-size: 2.8rem; margin-bottom: 16px; line-height: 1.2; }
+  .hero p { color: #9C988A; font-size: 1.1rem; margin-bottom: 32px; }
+  .hero .actions { display: flex; gap: 14px; justify-content: center; }
+  .section { padding: 60px 40px; }
+  .section h2 { font-size: 1.6rem; margin-bottom: 32px; }
+  .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .card { background: #232B3A; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-4px); }
+  .card .tag { font-size: 0.72rem; color: #9C988A; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .card h3 { font-size: 1.1rem; margin-bottom: 10px; line-height: 1.4; }
+  .card .meta { margin-top: 16px; font-size: 0.78rem; color: #9C988A; display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; }
+  #message-vide { color: #9C988A; font-size: 1rem; padding: 20px 0; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #232B3A; border-radius: 16px; padding: 36px; width: 100%; max-width: 440px; border: 1px solid rgba(255,255,255,0.1); }
+  .modal h2 { margin-bottom: 24px; font-size: 1.4rem; }
+  .modal input, .modal textarea { width: 100%; background: #1A1F2B; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px; color: #EDE7DA; font-size: 0.95rem; margin-bottom: 14px; font-family: sans-serif; }
+  .modal .actions { display: flex; gap: 10px; margin-top: 8px; }
+  .modal .btn-cancel { background: none; border: 1px solid rgba(255,255,255,0.15); color: #9C988A; padding: 10px 20px; border-radius: 999px; cursor: pointer; }
+  .notif { position: fixed; bottom: 24px; right: 24px; background: #4F9595; color: white; padding: 14px 24px; border-radius: 10px; font-size: 0.9rem; display: none; z-index: 200; }
+  .notif.error { background: #B5482F; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Strates</div>
+  <div class="nav-links">
+    <a href="#">IA</a>
+    <a href="#">Économie</a>
+    <a href="#">Politique</a>
+    <a href="#">Tech</a>
+  </div>
+  <div style="display:flex;gap:10px;" id="nav-btns">
+    <button class="btn btn-ghost" onclick="ouvrirModal('login')">Se connecter</button>
+    <button class="btn btn-primary" onclick="ouvrirModal('register')">S'inscrire</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Des analyses qui traversent<br>les couches de l'actualité</h1>
+  <p>Tech, IA, Économie, Politique — reliés, pas séparés.</p>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="ouvrirModal('article')">Soumettre un article</button>
+    <button class="btn btn-ghost" onclick="document.getElementById('flux').scrollIntoView()">Lire les analyses</button>
+  </div>
+</div>
+
+<section class="section" id="flux">
+  <h2>Le flux</h2>
+  <div class="articles-grid" id="articles-container">
+    <p id="message-vide">Chargement des articles...</p>
+  </div>
+</section>
+
+<div class="modal-overlay" id="modal-register">
+  <div class="modal">
+    <h2>Créer un compte</h2>
+    <input type="text" id="reg-nom" placeholder="Votre nom">
+    <input type="email" id="reg-email" placeholder="Email">
+    <input type="password" id="reg-password" placeholder="Mot de passe">
+    <div class="actions">
+      <button class="btn btn-primary" onclick="inscrire()">S'inscrire</button>
+      <button class="btn-cancel" onclick="fermerModals()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <h2>Se connecter</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Mot de passe">
+    <div class="actions">
+      <button class="btn btn-primary" onclick="connecter()">Se connecter</button>
+      <button class="btn-cancel" onclick="fermerModals()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-article">
+  <div class="modal" style="max-width:560px;">
+    <h2>Soumettre un article</h2>
+    <input type="text" id="art-titre" placeholder="Titre de l'article">
+    <textarea id="art-contenu" placeholder="Contenu de l'article..." rows="6" style="resize:vertical;"></textarea>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="soumettreArticle()">Soumettre</button>
+      <button class="btn-cancel" onclick="fermerModals()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+function ouvrirModal(type) {
+  fermerModals();
+  document.getElementById('modal-' + type).classList.add('active');
+}
+function fermerModals() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+}
+function afficherNotif(msg, erreur = false) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.className = 'notif' + (erreur ? ' error' : '');
+  n.style.display = 'block';
+  setTimeout(() => n.style.display = 'none', 3000);
+}
+
+async function inscrire() {
+  const nom = document.getElementById('reg-nom').value;
+  const email = document.getElementById('reg-email').value;
+  const mot_de_passe = document.getElementById('reg-password').value;
+  const res = await fetch(API + '/auth/inscription', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nom, email, mot_de_passe })
+  });
+  const data = await res.json();
+  if (res.ok) { afficherNotif('Compte créé !'); fermerModals(); }
+  else afficherNotif(data.message, true);
+}
+
+async function connecter() {
+  const email = document.getElementById('login-email').value;
+  const mot_de_passe = document.getElementById('login-password').value;
+  const res = await fetch(API + '/auth/connexion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, mot_de_passe })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    afficherNotif('Connecté en tant que ' + data.user.nom);
+    fermerModals();
+    mettreAJourNav(data.user);
+  } else afficherNotif(data.message, true);
+}
+
+function mettreAJourNav(user) {
+  const btns = document.getElementById('nav-btns');
+  let adminLien = user.role === 'admin'
+    ? `<a href="/admin.html" style="color:#4F9595;font-size:0.85rem;text-decoration:none;">Admin</a>` : '';
+  btns.innerHTML = `${adminLien}
+    <span style="color:#9C988A;font-size:0.9rem;">Bonjour, ${user.nom}</span>
+    <button class="btn btn-ghost" onclick="deconnecter()">Déconnexion</button>`;
+}
+
+function deconnecter() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  location.reload();
+}
+
+async function soumettreArticle() {
+  const token = localStorage.getItem('token');
+  if (!token) { afficherNotif('Vous devez être connecté', true); return; }
+  const titre = document.getElementById('art-titre').value;
+  const contenu = document.getElementById('art-contenu').value;
+  if (!titre || !contenu) { afficherNotif('Titre et contenu obligatoires', true); return; }
+  const res = await fetch(API + '/articles', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'authorization': token },
+    body: JSON.stringify({ titre, contenu })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    afficherNotif('Article soumis ! En attente de validation.');
+    fermerModals();
+    document.getElementById('art-titre').value = '';
+    document.getElementById('art-contenu').value = '';
+  } else afficherNotif(data.message, true);
+}
+
+async function chargerArticles() {
+  try {
+    const res = await fetch(API + '/articles');
+    const articles = await res.json();
+    const container = document.getElementById('articles-container');
+    if (articles.length === 0) {
+      container.innerHTML = '<p id="message-vide">Aucun article publié pour le moment.</p>';
+      return;
+    }
+    container.innerHTML = articles.map(a => `
+      <div class="card">
+        <div class="tag">Article</div>
+        <h3>${a.titre}</h3>
+        <div class="meta">
+          <span>${a.auteur}</span>
+          <span>${new Date(a.date_publication).toLocaleDateString('fr-FR')}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch {
+    document.getElementById('articles-container').innerHTML =
+      '<p id="message-vide">Impossible de charger les articles.</p>';
+  }
+}
+
+const userSauvegarde = localStorage.getItem('user');
+if (userSauvegarde) mettreAJourNav(JSON.parse(userSauvegarde));
+chargerArticles();
+</script>
+</body>
+</html>
