@@ -89,7 +89,7 @@ router.patch('/:id/valider', verifierToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Erreur serveur', erreur: err.message });
   }
-});),
+});
 
 
 // Lire un article par ID
