@@ -211,7 +211,7 @@ async function chargerArticles() {
       return;
     }
     container.innerHTML = articles.map(a => `
-      <div class="card">
+      <div class="card" onclick="window.location.href='/article.html?id=${a.id}'" style="cursor:pointer">
         <div class="tag">Article</div>
         <h3>${a.titre}</h3>
         <div class="meta">
