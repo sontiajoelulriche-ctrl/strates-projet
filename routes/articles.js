@@ -89,6 +89,24 @@ router.patch('/:id/valider', verifierToken, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Erreur serveur', erreur: err.message });
   }
-});
+});),
 
+
+// Lire un article par ID
+router.get('/:id', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT articles.*, users.nom as auteur FROM articles 
+       JOIN users ON articles.auteur_id = users.id 
+       WHERE articles.id = $1 AND articles.statut = 'publié'`,
+      [req.params.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Article non trouvé' });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur', erreur: err.message });
+  }
+});
 module.exports = router;
